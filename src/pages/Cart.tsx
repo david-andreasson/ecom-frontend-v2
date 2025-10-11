@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { useCart } from '../context/CartContext';
-import { purchase } from '../services/orderService';
 import { useAuth } from '../context/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -9,33 +8,21 @@ const Cart: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const canCheckout = useMemo(() => items.length > 0 && items.every(i => i.qty > 0), [items]);
 
-  const onCheckout = async () => {
-    setLoading(true);
+  const onCheckout = () => {
     setMessage(null);
     setError(null);
-    try {
-      // Kräver inloggning
-      if (!user?.token) {
-        setMessage('Please complete your details to checkout…');
-        const returnTo = encodeURIComponent(`${location.pathname}${location.search || ''}`);
-        setTimeout(() => navigate(`/?focus=form&returnTo=${returnTo}`, { replace: true }), 900);
-        return;
-      }
-      const payload = { items: items.map(i => ({ productId: i.id, quantity: i.qty })) };
-      const res = await purchase(payload);
-      setMessage(`Order created: ${res.orderId || res.orderNumber || ''}`.trim());
-      clearCart();
-    } catch (e: any) {
-      setError(e?.message || 'Checkout failed');
-    } finally {
-      setLoading(false);
+    if (!user?.token) {
+      setMessage('Please complete your details to checkout…');
+      const returnTo = encodeURIComponent(`${location.pathname}${location.search || ''}`);
+      setTimeout(() => navigate(`/?focus=form&returnTo=${returnTo}`, { replace: true }), 900);
+      return;
     }
+    navigate('/checkout');
   };
 
   return (
@@ -60,7 +47,7 @@ const Cart: React.FC = () => {
         <strong>Total: {total.toFixed(2)} USD</strong>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn" onClick={clearCart} disabled={items.length === 0}>Clear</button>
-          <button className="btn btn-primary" onClick={onCheckout} disabled={!canCheckout || loading}>{loading ? 'Processing…' : 'Checkout'}</button>
+          <button className="btn btn-primary" onClick={onCheckout} disabled={!canCheckout}>Checkout</button>
         </div>
       </div>
       {message && <p style={{ color: '#16a34a' }}>{message}</p>}

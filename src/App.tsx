@@ -7,9 +7,11 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Products from './pages/Products';
 import Cart from './pages/Cart';
+import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
 import { useCart } from './context/CartContext';
 import { useAuth } from './context/AuthContext';
+import { Toast } from './components/Toast';
 
 const Placeholder: React.FC<{ title: string }> = ({ title }) => (
   <div className="container">
@@ -62,7 +64,7 @@ const App: React.FC = () => {
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
           <Route path="/products" element={<Products />} />
-          <Route path="/checkout" element={<RequireAuth><Cart /></RequireAuth>} />
+          <Route path="/checkout" element={<RequireAuth><Checkout /></RequireAuth>} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/horoscope" element={<HoroscopePage />} />
@@ -73,6 +75,8 @@ const App: React.FC = () => {
       <footer className="site-footer">
         <div className="container">© {new Date().getFullYear()} AI‑horoscope</div>
       </footer>
+      
+      <Toast />
     </div>
   );
 };

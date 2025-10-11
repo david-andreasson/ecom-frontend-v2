@@ -72,23 +72,29 @@ function reducer(state: State, action: Action): State {
       return { items };
     }
     case 'ADD': {
-      const idx = state.items.findIndex(i => i.id === action.payload.id);
-      if (idx >= 0) {
-        const next = [...state.items];
-        const current = next[idx];
-        const newQty = Math.min(99, (current.qty ?? 0) + 1);
-        next[idx] = { ...current, qty: newQty };
-        return { items: next };
-      }
+      // Only allow 1 product at a time (for horoscope purchase)
+      const hasExisting = state.items.length > 0;
       const newItem: CartItem = { id: action.payload.id, name: action.payload.name, price: action.payload.price, imageUrl: action.payload.imageUrl, qty: 1 };
-      return { items: [...state.items, newItem] };
+      if (hasExisting) {
+        const isSameProduct = state.items[0].id === action.payload.id;
+        // Show notification
+        if (typeof window !== 'undefined') {
+          const event = new CustomEvent('cart-replaced', { 
+            detail: { 
+              oldProduct: state.items[0].name, 
+              newProduct: newItem.name,
+              isSameProduct 
+            } 
+          });
+          window.dispatchEvent(event);
+        }
+      }
+      return { items: [newItem] };
     }
     case 'REMOVE': return { items: state.items.filter(i => i.id !== action.payload.id) };
     case 'UPDATE_QTY': {
-      let { qty } = action.payload;
-      if (!Number.isFinite(qty)) qty = 1;
-      qty = Math.max(1, Math.min(99, Math.round(qty)));
-      return { items: state.items.map(i => i.id === action.payload.id ? { ...i, qty } : i) };
+      // Force qty to always be 1 (only one horoscope per purchase)
+      return { items: state.items.map(i => i.id === action.payload.id ? { ...i, qty: 1 } : i) };
     }
     case 'CLEAR': return { items: [] };
     default: return state;

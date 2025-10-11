@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
@@ -14,12 +14,19 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const returnTo = useMemo(() => {
     const params = new URLSearchParams(location.search);
     const rt = params.get('returnTo');
     return rt ? decodeURIComponent(rt) : '/';
   }, [location.search]);
+  const showLoginPrompt = returnTo !== '/';
   const { setUser } = useAuth();
+
+  // Auto-focus email input
+  useEffect(() => {
+    emailInputRef.current?.focus();
+  }, []);
 
   const signIn = async (signinEmail: string, signinPassword: string) => {
     const res = await fetch('/api/users/auth/login', {
@@ -81,6 +88,21 @@ const Login: React.FC = () => {
 
   return (
     <div className="card" style={{ maxWidth: 520, margin: '1rem auto' }}>
+      {showLoginPrompt && (
+        <div style={{ 
+          padding: '0.75rem', 
+          marginBottom: '1rem', 
+          background: '#06402b', 
+          border: '1px solid #10b981', 
+          borderRadius: '4px',
+          color: '#d1fae5'
+        }}>
+          <strong>⚠️ Login required</strong>
+          <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.9rem' }}>
+            Please sign in to access your profile and continue.
+          </p>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0 }}>{mode === 'login' ? 'Sign in' : 'Create account'}</h2>
         <button type="button" className="btn" onClick={() => { setError(null); setMode(mode === 'login' ? 'register' : 'login'); }}>
@@ -88,7 +110,7 @@ const Login: React.FC = () => {
         </button>
       </div>
       <form onSubmit={onSubmit} className="form-grid" style={{ marginTop: 12 }}>
-        <label>Email<input type="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
+        <label>Email<input ref={emailInputRef} type="email" value={email} onChange={e => setEmail(e.target.value)} required /></label>
         <label>Password<input type="password" value={password} onChange={e => setPassword(e.target.value)} required /></label>
         {mode === 'register' && (
           <>

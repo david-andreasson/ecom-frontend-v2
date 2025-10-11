@@ -19,21 +19,44 @@ const HoroscopePage: React.FC = () => {
   const [showPreview, setShowPreview] = useState(false);
   const { user } = useAuth();
 
-  // Prefill from landing form (stored in sessionStorage)
+  // Prefill from sessionStorage or user profile
   useEffect(() => {
-    try {
-      const raw = sessionStorage.getItem('horoscopeForm');
-      if (!raw) return;
-      const d = JSON.parse(raw) || {};
-      setForm({
-        name: d.name || '',
-        gender: d.gender || '',
-        birthDate: d.birthDate || '',
-        birthPlace: d.birthPlace || '',
-        birthTime: d.birthTime || ''
-      });
-    } catch (_) { /* ignore parse errors */ }
-  }, []);
+    const loadFormData = async () => {
+      try {
+        // First try sessionStorage (from Landing form)
+        const raw = sessionStorage.getItem('horoscopeForm');
+        if (raw) {
+          const d = JSON.parse(raw) || {};
+          setForm({
+            name: d.name || '',
+            gender: d.gender || '',
+            birthDate: d.birthDate || '',
+            birthPlace: d.birthPlace || '',
+            birthTime: d.birthTime || ''
+          });
+          return;
+        }
+        
+        // If no sessionStorage data, fetch from user profile
+        if (user?.token) {
+          const res = await fetch('/api/users/me', {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
+          if (res.ok) {
+            const userData = await res.json();
+            setForm({
+              name: `${userData.firstName || ''} ${userData.lastName || ''}`.trim(),
+              gender: userData.gender || '',
+              birthDate: userData.birthDate || '',
+              birthPlace: userData.birthPlace || '',
+              birthTime: userData.birthTime || ''
+            });
+          }
+        }
+      } catch (_) { /* ignore errors */ }
+    };
+    loadFormData();
+  }, [user?.token]);
 
   const onChange = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [k]: e.target.value });
@@ -63,7 +86,13 @@ const HoroscopePage: React.FC = () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        if (errorData?.code === 'NEEDS_PURCHASE') {
+          throw new Error('You need to purchase a horoscope first. Please visit the Products page to buy one.');
+        }
+        throw new Error(errorData?.message || 'Failed to generate horoscope');
+      }
       const data = await res.json();
       const newId = data?.id || null;
       setId(newId);

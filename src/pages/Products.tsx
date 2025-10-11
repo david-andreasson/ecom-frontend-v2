@@ -9,7 +9,6 @@ const Products: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [paying, setPaying] = useState(false);
   const { addToCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -59,7 +58,7 @@ const Products: React.FC = () => {
       addToCart({ id: pick.id, name: pick.name, price });
     };
 
-    const onBuyNow = async () => {
+    const onBuyNow = () => {
       setError(null);
       setNotice(null);
       if (!user?.token) {
@@ -68,21 +67,8 @@ const Products: React.FC = () => {
         setTimeout(() => navigate(`/?focus=form&returnTo=${returnTo}`, { replace: true }), 900);
         return;
       }
-      try {
-        setPaying(true);
-        const res = await fetch('/api/users/me/checkout/mock-pay', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${user.token}` },
-          body: JSON.stringify({ sku: 'HOROSCOPE_PDF' })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        setNotice('Payment successful. Redirecting…');
-        setTimeout(() => navigate('/horoscope'), 1200);
-      } catch (e: any) {
-        setError(e?.message || 'Purchase failed');
-      } finally {
-        setPaying(false);
-      }
+      onAdd();
+      navigate('/checkout');
     };
     return (
       <div className="card" style={{ display: 'grid', gap: 12 }}>
@@ -93,12 +79,12 @@ const Products: React.FC = () => {
           <span>{price.toFixed(2)} {currency}</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn" onClick={onAdd}>Add to cart</button>
-            <button className="btn btn-primary" onClick={onBuyNow} disabled={paying}>{paying ? 'Processing…' : 'Buy now'}</button>
+            <button className="btn btn-primary" onClick={onBuyNow}>Buy now</button>
           </div>
         </div>
       </div>
     );
-  }, [pick, addToCart]);
+  }, [pick, addToCart, user?.token, location.pathname, location.search, navigate]);
 
   const subscriptionCard = (
     <div className="card" style={{ display: 'grid', gap: 12, position: 'relative', opacity: 0.9 }}>
