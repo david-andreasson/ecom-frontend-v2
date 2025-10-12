@@ -34,7 +34,7 @@ const Cart: React.FC = () => {
           <div key={i.id} className="card" style={{ display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: 8 }}>
             <div>
               <div style={{ fontWeight: 600 }}>{i.name}</div>
-              <div style={{ color: '#9aa3af' }}>{i.price.toFixed(2)} USD</div>
+              <div style={{ color: '#9aa3af' }}>{i.price.toFixed(2)} SEK</div>
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <input type="number" min={1} max={99} value={i.qty} onChange={e => updateQty(i.id, Number(e.target.value))} style={{ width: 72 }} />
@@ -44,7 +44,7 @@ const Cart: React.FC = () => {
         ))}
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <strong>Total: {total.toFixed(2)} USD</strong>
+        <strong>Total: {total.toFixed(2)} SEK</strong>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn" onClick={clearCart} disabled={items.length === 0}>Clear</button>
           <button className="btn btn-primary" onClick={onCheckout} disabled={!canCheckout}>Checkout</button>

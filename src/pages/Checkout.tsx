@@ -74,15 +74,17 @@ const CheckoutForm: React.FC<{ clientSecret: string }> = ({ clientSecret }) => {
         try {
           await createOrder(result.paymentIntent.id, items, user?.token);
           setMessage('Order created! Redirecting...');
-          clearCart();
-          // Force clear localStorage immediately (sync) to avoid race condition
+          // Clear localStorage immediately (don't use clearCart to avoid race condition)
+          // Use same keys as CartContext: 'cart:' prefix for users, 'guest_cart' for guests
           if (user?.email) {
-            localStorage.removeItem(`cart_${user.email}`);
+            localStorage.removeItem(`cart:${user.email}`);
+          } else if ((user as any)?.sub) {
+            localStorage.removeItem(`cart:${(user as any).sub}`);
           } else {
-            localStorage.removeItem('cart_guest');
+            localStorage.removeItem('guest_cart');
           }
-          await new Promise(resolve => setTimeout(resolve, 100));
-          window.location.href = '/horoscope';
+          // Force full page reload to ensure CartContext rehydrates with empty cart
+          window.location.replace('/horoscope');
         } catch (orderErr) {
           console.error('Failed to create order:', orderErr);
           setError('Payment succeeded but order creation failed. Please contact support.');

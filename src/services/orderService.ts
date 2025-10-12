@@ -9,7 +9,7 @@ export interface OrderHistoryItem {
   totalAmount?: number;
   total?: number;
   currency?: string;
-  items?: Array<{ productId?: string; name?: string; productName?: string; quantity?: number; price?: number }>;
+  items?: Array<{ productId?: string; name?: string; productName?: string; quantity?: number; price?: number; priceAtPurchase?: number }>;
 }
 
 const ORDERS_BASE = '/api/orders';

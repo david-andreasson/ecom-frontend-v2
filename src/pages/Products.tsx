@@ -44,7 +44,7 @@ const Products: React.FC = () => {
           <div style={{ fontWeight: 700, fontSize: 18 }}>AI Horoscope (PDF)</div>
           <div style={{ color: '#9aa3af' }}>Personalized AI horoscope delivered as a downloadable PDF.</div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>— USD</span>
+            <span>— SEK</span>
             <button className="btn" disabled title="Product not yet available in backend">Unavailable</button>
           </div>
         </div>
@@ -95,7 +95,7 @@ const Products: React.FC = () => {
       </div>
       <div style={{ color: '#9aa3af' }}>Get a personalized AI horoscope in your inbox every day. Launching soon.</div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>— USD/month</span>
+        <span>— SEK/month</span>
         <button className="btn" disabled title="Launching soon">Not available yet</button>
       </div>
     </div>
@@ -110,7 +110,7 @@ const Products: React.FC = () => {
       </div>
       <div style={{ color: '#9aa3af' }}>Yearly plan with daily personalized AI horoscope emails. Launching soon.</div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span>— USD/year</span>
+        <span>— SEK/year</span>
         <button className="btn" disabled title="Launching soon">Not available yet</button>
       </div>
     </div>

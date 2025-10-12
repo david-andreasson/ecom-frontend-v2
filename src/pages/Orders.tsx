@@ -36,11 +36,15 @@ const Orders: React.FC = () => {
               <span>{o.orderDate || o.createdAt || ''}</span>
             </div>
             <div>Status: {o.status || '—'}</div>
-            <div>Total: {(o.totalAmount ?? o.total ?? 0).toFixed(2)} {o.currency || 'USD'}</div>
+            <div>Total: {(o.totalAmount ?? o.total ?? 0).toFixed(2)} {o.currency || 'SEK'}</div>
             {Array.isArray(o.items) && o.items.length > 0 && (
               <ul style={{ margin: '8px 0 0 16px' }}>
                 {o.items.map((i, idx) => (
-                  <li key={idx}>{i.name || i.productName || i.productId} × {i.quantity} @ {i.price}</li>
+                  <li key={idx}>
+                    {i.name || i.productName || i.productId} × {i.quantity}
+                    {(i.priceAtPurchase != null || i.price != null) && 
+                      ` @ ${Number(i.priceAtPurchase ?? i.price).toFixed(2)} ${o.currency || 'SEK'}`}
+                  </li>
                 ))}
               </ul>
             )}
