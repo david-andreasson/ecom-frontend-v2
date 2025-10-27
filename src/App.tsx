@@ -25,7 +25,7 @@ const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const loc = useLocation();
   if (!user?.token) {
     const returnTo = encodeURIComponent(`${loc.pathname}${loc.search || ''}`);
-    return <Navigate to={`/login?returnTo=${returnTo}`} replace />;
+    return <Navigate to={`/?focus=form&returnTo=${returnTo}`} replace />;
   }
   return <>{children}</>;
 };

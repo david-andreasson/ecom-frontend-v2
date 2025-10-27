@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [me, setMe] = useState<{ firstName?: string; lastName?: string; email?: string } | null>(null);
@@ -16,6 +19,12 @@ const Profile: React.FC = () => {
         const res = await fetch('/api/users/me', {
           headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${user.token}` }
         });
+        if (res.status === 401 || res.status === 403) {
+          logout();
+          const returnTo = encodeURIComponent(`${location.pathname}${location.search || ''}`);
+          navigate(`/?focus=form&returnTo=${returnTo}`, { replace: true });
+          return;
+        }
         if (!res.ok) throw new Error(`Kunde inte hämta profil (${res.status})`);
         const data = await res.json();
         setMe(data);
@@ -26,7 +35,7 @@ const Profile: React.FC = () => {
       }
     };
     run();
-  }, [user?.token]);
+  }, [user?.token, logout, navigate, location.pathname, location.search]);
 
   if (!user?.token) {
     return (
